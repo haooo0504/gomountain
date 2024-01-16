@@ -51,6 +51,65 @@ paths:
       summary: 獲取貼文留言
       tags:
       - 貼文留言
+  /favorite/addFavoriteMountainRoad:
+    post:
+      parameters:
+      - description: 用戶ID
+        in: formData
+        name: userId
+        type: string
+      - description: 山名ID
+        in: formData
+        name: mountainRoadID
+        type: string
+      responses:
+        "200":
+          description: code","message"}
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 最愛的山名及路名
+      tags:
+      - 最愛的山名及路名
+  /favorite/delFavoriteMountainRoad:
+    get:
+      parameters:
+      - description: 用戶ID
+        in: query
+        name: userId
+        type: string
+      - description: 山名ID
+        in: query
+        name: mountainRoadID
+        type: string
+      responses:
+        "200":
+          description: code","message"}
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 用戶最愛的山名及路名
+      tags:
+      - 用戶最愛的山名及路名
+  /favorite/getFavoriteMountainRoad:
+    get:
+      parameters:
+      - description: 用戶ID
+        in: query
+        name: userId
+        type: string
+      responses:
+        "200":
+          description: code","message"}
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 用戶最愛的山名及路名
+      tags:
+      - 用戶最愛的山名及路名
   /like/addLike:
     post:
       parameters:

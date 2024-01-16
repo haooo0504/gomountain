@@ -65,6 +65,10 @@ func Router() *gin.Engine {
 	private.GET("/comment/getComment", service.GetComment)
 	private.GET("/version/getVersion", service.GetVersion)
 
+	private.POST("/favorite/addFavoriteMountainRoad", service.AddFavoriteMountainRoad)
+	private.GET("/favorite/getFavoriteMountainRoad", service.GetFavoriteMountainRoad)
+	private.GET("/favorite/delFavoriteMountainRoad", service.DelFavoriteMountainRoad)
+
 	return r
 }
 

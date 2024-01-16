@@ -3,6 +3,7 @@ package models
 import (
 	"gomountain/utils"
 	"log"
+	"strconv"
 
 	"gorm.io/gorm"
 )
@@ -22,14 +23,14 @@ func GetMountainRoad() (map[string][]map[string]string, error) {
 	var mountainRoads []MountainRoad
 	result := utils.DB.Find(&mountainRoads)
 	if result.Error != nil {
-		log.Fatalf("查询错误: %v", result.Error)
+		log.Fatalf("查詢錯誤: %v", result.Error)
 		return nil, result.Error
 	}
 
 	// 使用映射来组织数据
 	mountainMap := make(map[string][]map[string]string)
 	for _, mr := range mountainRoads {
-		roadMap := map[string]string{mr.Road: mr.VideoUrl}
+		roadMap := map[string]string{"id": strconv.FormatUint(uint64(mr.ID), 10), "road": mr.Road, "videoUrl": mr.VideoUrl}
 		mountainMap[mr.Mountain] = append(mountainMap[mr.Mountain], roadMap)
 	}
 

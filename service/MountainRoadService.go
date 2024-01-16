@@ -20,6 +20,7 @@ func GetMountainRoad(c *gin.Context) {
 			"code":    -1, // 0 成功 -1失敗
 			"message": "取得山名路名失敗",
 		})
+		return
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0, // 0 成功 -1失敗
