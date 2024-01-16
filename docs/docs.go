@@ -121,6 +121,27 @@ const docTemplate = `{
                 }
             }
         },
+        "/mountainRoad/getMountainRoad": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "取得山名路名"
+                ],
+                "summary": "取得山名路名",
+                "responses": {
+                    "200": {
+                        "description": "code\",\"message\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/ping": {
             "get": {
                 "tags": [

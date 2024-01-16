@@ -26,7 +26,7 @@ WORKDIR /root/
 # 從編譯器階段複製可執行檔到我們的最小映像
 COPY --from=builder /gomountain/main .
 
-EXPOSE 8082
+EXPOSE 8083
 
 # 運行應用程式
 CMD ["./main"]

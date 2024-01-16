@@ -72,6 +72,18 @@ paths:
       summary: 貼文按讚
       tags:
       - 貼文按讚
+  /mountainRoad/getMountainRoad:
+    get:
+      responses:
+        "200":
+          description: code","message"}
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 取得山名路名
+      tags:
+      - 取得山名路名
   /ping:
     get:
       responses:

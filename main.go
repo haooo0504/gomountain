@@ -38,6 +38,10 @@ func main() {
 	if err != nil {
 		log.Fatal("failed to auto migrate Version: ", err)
 	}
+	err = db.AutoMigrate(&models.MountainRoad{})
+	if err != nil {
+		log.Fatal("failed to auto migrate MountainRoad: ", err)
+	}
 
 	r := router.Router()
 	r.Run(":8083")

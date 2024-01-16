@@ -47,6 +47,7 @@ func Router() *gin.Engine {
 	public.POST("/user/appleSignIn", service.AppleSignIn)
 	public.POST("/user/RefreshToken", service.RefreshToken)
 	public.GET("/user/getUserList", service.GetUserList)
+	public.GET("/mountainRoad/getMountainRoad", service.GetMountainRoad)
 
 	// Private (authenticated) routes
 	private := r.Group("/")
