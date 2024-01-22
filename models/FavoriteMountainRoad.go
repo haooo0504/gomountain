@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"gomountain/utils"
 	"strconv"
 
@@ -18,8 +19,16 @@ func (table *FavoriteMountainRoad) TableName() string {
 }
 
 func AddToFavorites(userID uint, mountainRoadID uint) error {
+	var existingFavorite FavoriteMountainRoad
+	// 檢查是否已經存在相同的收藏紀錄
+	result := utils.DB.Where("user_id = ? AND mountain_road_id = ?", userID, mountainRoadID).First(&existingFavorite)
+
+	// 如果紀錄已經存在則拋出錯誤
+	if result.RowsAffected > 0 {
+		return errors.New("已經加入最愛")
+	}
 	favorite := FavoriteMountainRoad{UserID: userID, MountainRoadID: mountainRoadID}
-	result := utils.DB.Create(&favorite)
+	result = utils.DB.Create(&favorite)
 	return result.Error
 }
 
@@ -44,6 +53,8 @@ func GetUserFavoriteMountainRoads(userID uint) ([]map[string]string, error) {
 			"mountain": mountainRoad.Mountain,
 			"road":     mountainRoad.Road,
 			"videoUrl": mountainRoad.VideoUrl,
+			"city":     mountainRoad.City,
+			"area":     mountainRoad.Area,
 		}
 		roadDetails = append(roadDetails, roadDetail)
 	}
@@ -54,14 +65,14 @@ func GetUserFavoriteMountainRoads(userID uint) ([]map[string]string, error) {
 func RemoveFromFavorites(userID uint, mountainRoadID uint) error {
 	var favorite FavoriteMountainRoad
 
-	// 查找特定的最爱记录
+	// 查找指定紀錄
 	result := utils.DB.Where("user_id = ? AND mountain_road_id = ?", userID, mountainRoadID).First(&favorite)
 	if result.Error != nil {
 		return result.Error
 	}
 
-	// 删除这条记录
-	if err := utils.DB.Delete(&favorite).Error; err != nil {
+	// 執行硬刪除(真實刪除)這條紀錄
+	if err := utils.DB.Unscoped().Delete(&favorite).Error; err != nil {
 		return err
 	}
 

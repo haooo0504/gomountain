@@ -13,6 +13,8 @@ type MountainRoad struct {
 	Mountain string
 	Road     string
 	VideoUrl string
+	City     string
+	Area     string
 }
 
 func (table *MountainRoad) TableName() string {
@@ -30,7 +32,7 @@ func GetMountainRoad() (map[string][]map[string]string, error) {
 	// 使用映射来组织数据
 	mountainMap := make(map[string][]map[string]string)
 	for _, mr := range mountainRoads {
-		roadMap := map[string]string{"id": strconv.FormatUint(uint64(mr.ID), 10), "road": mr.Road, "videoUrl": mr.VideoUrl}
+		roadMap := map[string]string{"id": strconv.FormatUint(uint64(mr.ID), 10), "road": mr.Road, "videoUrl": mr.VideoUrl, "city": mr.City, "area": mr.Area}
 		mountainMap[mr.Mountain] = append(mountainMap[mr.Mountain], roadMap)
 	}
 

@@ -73,7 +73,7 @@ paths:
       tags:
       - 最愛的山名及路名
   /favorite/delFavoriteMountainRoad:
-    get:
+    delete:
       parameters:
       - description: 用戶ID
         in: query
@@ -90,9 +90,9 @@ paths:
             type: string
       security:
       - ApiKeyAuth: []
-      summary: 用戶最愛的山名及路名
+      summary: 移除用戶最愛的山名及路名
       tags:
-      - 用戶最愛的山名及路名
+      - 最愛的山名及路名
   /favorite/getFavoriteMountainRoad:
     get:
       parameters:
@@ -109,7 +109,7 @@ paths:
       - ApiKeyAuth: []
       summary: 用戶最愛的山名及路名
       tags:
-      - 用戶最愛的山名及路名
+      - 最愛的山名及路名
   /like/addLike:
     post:
       parameters:

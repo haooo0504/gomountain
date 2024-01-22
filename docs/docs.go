@@ -122,16 +122,16 @@ const docTemplate = `{
             }
         },
         "/favorite/delFavoriteMountainRoad": {
-            "get": {
+            "delete": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
                 "tags": [
-                    "用戶最愛的山名及路名"
+                    "最愛的山名及路名"
                 ],
-                "summary": "用戶最愛的山名及路名",
+                "summary": "移除用戶最愛的山名及路名",
                 "parameters": [
                     {
                         "type": "string",
@@ -164,7 +164,7 @@ const docTemplate = `{
                     }
                 ],
                 "tags": [
-                    "用戶最愛的山名及路名"
+                    "最愛的山名及路名"
                 ],
                 "summary": "用戶最愛的山名及路名",
                 "parameters": [

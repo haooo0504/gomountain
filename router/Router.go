@@ -67,7 +67,7 @@ func Router() *gin.Engine {
 
 	private.POST("/favorite/addFavoriteMountainRoad", service.AddFavoriteMountainRoad)
 	private.GET("/favorite/getFavoriteMountainRoad", service.GetFavoriteMountainRoad)
-	private.GET("/favorite/delFavoriteMountainRoad", service.DelFavoriteMountainRoad)
+	private.DELETE("/favorite/delFavoriteMountainRoad", service.DelFavoriteMountainRoad)
 
 	return r
 }
