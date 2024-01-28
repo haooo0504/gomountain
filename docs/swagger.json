@@ -538,6 +538,35 @@
                 }
             }
         },
+        "/user/getUserHistory": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "用戶資料"
+                ],
+                "summary": "用戶操作歷史紀錄",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "userId",
+                        "name": "userId",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "code\",\"message\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/user/getUserList": {
             "get": {
                 "tags": [

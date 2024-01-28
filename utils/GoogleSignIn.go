@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/spf13/viper"
 	"google.golang.org/api/idtoken"
 )
 
@@ -13,8 +14,8 @@ func ValidateGoogleIdToken(idToken string) (*idtoken.Payload, error) {
 	ctx := context.Background()
 
 	clientIds := []string{
-		"987503717012-ve2cvppbv230g248pgvmibep4mam7gun.apps.googleusercontent.com", // Android client ID
-		"987503717012-hi1a327ahjs8nb6plb3b6s8918q0r8e5.apps.googleusercontent.com", // iOS client ID
+		viper.GetString("googleSignIn.android"), // Android client ID
+		viper.GetString("googleSignIn.ios"),     // iOS client ID
 	}
 
 	var payload *idtoken.Payload

@@ -65,22 +65,24 @@ func CreatePost(c *gin.Context) {
 	file, _ := c.FormFile("image")
 	// 保存圖片到本地文件系統
 	// Generate a random string for filename
-	buf := make([]byte, 16) // 16 bytes will give us 32 hex characters
-	if _, err := rand.Read(buf); err != nil {
-		c.String(http.StatusInternalServerError, fmt.Sprintf("generate random string err: %s", err.Error()))
-		return
-	}
-	randomString := hex.EncodeToString(buf)
+	if file != nil {
+		buf := make([]byte, 16) // 16 bytes will give us 32 hex characters
+		if _, err := rand.Read(buf); err != nil {
+			c.String(http.StatusInternalServerError, fmt.Sprintf("generate random string err: %s", err.Error()))
+			return
+		}
+		randomString := hex.EncodeToString(buf)
 
-	filename := fmt.Sprintf("%s-%s", randomString, filepath.Base(file.Filename))
-	directory := "assets/images/"
-	os.MkdirAll(directory, os.ModePerm) // 確保目錄存在
-	path := filepath.Join(directory, filename)
-	if err := c.SaveUploadedFile(file, path); err != nil {
-		c.String(http.StatusInternalServerError, fmt.Sprintf("upload file err: %s", err.Error()))
-		return
+		filename := fmt.Sprintf("%s-%s", randomString, filepath.Base(file.Filename))
+		directory := "assets/images/"
+		os.MkdirAll(directory, os.ModePerm) // 確保目錄存在
+		path := filepath.Join(directory, filename)
+		if err := c.SaveUploadedFile(file, path); err != nil {
+			c.String(http.StatusInternalServerError, fmt.Sprintf("upload file err: %s", err.Error()))
+			return
+		}
+		post.ImageURL = "/assets/images/" + filename
 	}
-	post.ImageURL = "/assets/images/" + filename
 
 	newPost, err := models.CreatePost(&post)
 	if err != nil {

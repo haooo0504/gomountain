@@ -54,6 +54,7 @@ func Router() *gin.Engine {
 	private.Use(JWTAuthMiddleware())
 	private.GET("/user/deleteUser", service.DeleteUser)
 	private.POST("/user/updateUser", service.UpdateUser)
+	private.GET("/user/getUserHistory", service.GetUserHistory)
 
 	private.GET("/post/getPostList", service.GetPostList)
 	private.POST("/post/createPost", service.CreatePost)

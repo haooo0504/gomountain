@@ -48,7 +48,7 @@ func RemoveLike(userID uint, postID uint) (int64, error) {
 		return 0, fmt.Errorf("user has not liked this post")
 	}
 
-	utils.DB.Where("user_id = ? AND post_id = ?", userID, postID).Delete(&Like{})
+	utils.DB.Where("user_id = ? AND post_id = ?", userID, postID).Unscoped().Delete(&Like{})
 
 	// 获取最新的点赞数
 	var count int64
@@ -85,4 +85,20 @@ func PostExists(postId uint) bool {
 	var count int64
 	utils.DB.Model(&PostInfo{}).Where("id = ?", postId).Count(&count)
 	return count > 0
+}
+
+// 用戶的貼文總共獲得多少讚
+func GetUserTotalLikes(userID uint) (int64, error) {
+	var count int64
+	err := utils.DB.Model(&Like{}).
+		Joins("left join post_info on post_info.id = likes.post_id").
+		Where("post_info.author_id = ?", userID).Count(&count).Error
+	return count, err
+}
+
+// 用戶按過的讚的數量
+func GetUserLikesCount(userID uint) (int64, error) {
+	var count int64
+	err := utils.DB.Model(&Like{}).Where("user_id = ?", userID).Count(&count).Error
+	return count, err
 }

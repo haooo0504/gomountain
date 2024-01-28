@@ -551,3 +551,54 @@ func AppleSignIn(c *gin.Context) {
 		}
 	}
 }
+
+// GetUserHistory
+// @Security ApiKeyAuth
+// @Summary 用戶操作歷史紀錄
+// @Tags 用戶資料
+// @param userId query string false "userId"
+// @Success 200 {string} json{"code","message"}
+// @Router /user/getUserHistory [get]
+func GetUserHistory(c *gin.Context) {
+	userId, _ := strconv.Atoi(c.Query("userId"))
+	userPostCount, errOne := models.GetUserPostCount(uint(userId))
+	if errOne != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    -1,
+			"message": "獲取資料失敗",
+			"data":    errOne.Error(),
+		})
+		return
+	}
+
+	userTotalLikes, errTwo := models.GetUserTotalLikes(uint(userId))
+	if errTwo != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    -1,
+			"message": "獲取資料失敗",
+			"data":    errTwo.Error(),
+		})
+		return
+	}
+
+	userLikesCount, errThird := models.GetUserTotalLikes(uint(userId))
+	if errThird != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    -1,
+			"message": "獲取資料失敗",
+			"data":    errThird.Error(),
+		})
+		return
+	}
+	data := gin.H{
+		"userPostCount":  userPostCount,
+		"userTotalLikes": userTotalLikes,
+		"userLikesCount": userLikesCount,
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0, // 0 成功 -1失敗
+		"message": "獲取資料成功",
+		"data":    data,
+	})
+}

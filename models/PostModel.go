@@ -96,3 +96,10 @@ func DeletePost(post *PostInfo) *gorm.DB {
 	}
 	return result
 }
+
+// 用戶發過的貼文數量
+func GetUserPostCount(userID uint) (int64, error) {
+	var count int64
+	err := utils.DB.Model(&PostInfo{}).Where("author_id = ?", userID).Count(&count).Error
+	return count, err
+}

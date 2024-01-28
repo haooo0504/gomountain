@@ -337,6 +337,23 @@ paths:
       summary: 用戶登入
       tags:
       - 用戶資料
+  /user/getUserHistory:
+    get:
+      parameters:
+      - description: userId
+        in: query
+        name: userId
+        type: string
+      responses:
+        "200":
+          description: code","message"}
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 用戶操作歷史紀錄
+      tags:
+      - 用戶資料
   /user/getUserList:
     get:
       responses:
