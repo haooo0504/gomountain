@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"gomountain/utils"
 	"time"
 
@@ -41,10 +42,11 @@ func GetPostList(userID uint, postType string) ([]*PostWithLikes, error) {
 	// 构建子查询
 	commentCountSQL := "(SELECT count(*) FROM comments WHERE comments.post_id = post_info.id) as comment_count"
 	likeCountSQL := "(SELECT count(*) FROM likes WHERE likes.post_id = post_info.id) as like_count"
+	userLikedSQL := fmt.Sprintf("(SELECT count(*) > 0 FROM likes WHERE likes.post_id = post_info.id AND likes.user_id = %d) as user_liked", userID)
 
 	// 构造查询
 	query := utils.DB.Table("post_info").
-		Select("post_info.*, user_basic.image_url as author_img, "+commentCountSQL+", "+likeCountSQL).
+		Select("post_info.*, user_basic.image_url as author_img, "+commentCountSQL+", "+likeCountSQL+", "+userLikedSQL).
 		Joins("left join user_basic on post_info.author = user_basic.name").
 		Where("post_info.created_at > ?", fiveDaysAgo)
 
