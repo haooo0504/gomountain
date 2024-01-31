@@ -40,12 +40,12 @@ func GetPostList(userID uint, postType string) ([]*PostWithLikes, error) {
 
 	// 构建子查询
 	commentCountSQL := "(SELECT count(*) FROM comments WHERE comments.post_id = post_info.id) as comment_count"
+	likeCountSQL := "(SELECT count(*) FROM likes WHERE likes.post_id = post_info.id) as like_count"
 
 	// 构造查询
 	query := utils.DB.Table("post_info").
-		Select("post_info.*, user_basic.image_url as author_img, "+commentCountSQL).
+		Select("post_info.*, user_basic.image_url as author_img, "+commentCountSQL+", "+likeCountSQL).
 		Joins("left join user_basic on post_info.author = user_basic.name").
-		Preload("Likes").
 		Where("post_info.created_at > ?", fiveDaysAgo)
 
 	// 根据传入的 postType 添加筛选条件
@@ -59,16 +59,16 @@ func GetPostList(userID uint, postType string) ([]*PostWithLikes, error) {
 	}
 
 	// 更新每个帖子的点赞状态
-	for _, post := range posts {
-		post.UserLiked = false
-		for _, like := range post.Likes {
-			if like.UserID == userID {
-				post.UserLiked = true
-				break
-			}
-		}
-		post.LikeCount = len(post.Likes)
-	}
+	// for _, post := range posts {
+	// 	post.UserLiked = false
+	// 	for _, like := range post.Likes {
+	// 		if like.UserID == userID {
+	// 			post.UserLiked = true
+	// 			break
+	// 		}
+	// 	}
+	// 	post.LikeCount = len(post.Likes)
+	// }
 
 	return posts, nil
 }
