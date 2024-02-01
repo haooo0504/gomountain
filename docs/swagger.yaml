@@ -51,6 +51,33 @@ paths:
       summary: 獲取貼文留言
       tags:
       - 貼文留言
+  /connect/connectToUs:
+    post:
+      parameters:
+      - description: 用戶ID
+        in: formData
+        name: userId
+        type: string
+      - description: 用戶姓名
+        in: formData
+        name: userName
+        type: string
+      - description: gmail
+        in: formData
+        name: gmail
+        type: string
+      - description: 留言內容
+        in: formData
+        name: userComment
+        type: string
+      responses:
+        "200":
+          description: code","message"}
+          schema:
+            type: string
+      summary: 聯絡我們
+      tags:
+      - 聯絡我們
   /favorite/addFavoriteMountainRoad:
     post:
       parameters:

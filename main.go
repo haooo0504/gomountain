@@ -46,6 +46,10 @@ func main() {
 	if err != nil {
 		log.Fatal("failed to auto migrate FavoriteMountainRoad: ", err)
 	}
+	err = db.AutoMigrate(&models.ConnectUs{})
+	if err != nil {
+		log.Fatal("failed to auto migrate ConnectUs: ", err)
+	}
 
 	r := router.Router()
 	r.Run(":8083")

@@ -86,6 +86,48 @@ const docTemplate = `{
                 }
             }
         },
+        "/connect/connectToUs": {
+            "post": {
+                "tags": [
+                    "聯絡我們"
+                ],
+                "summary": "聯絡我們",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用戶ID",
+                        "name": "userId",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "用戶姓名",
+                        "name": "userName",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "gmail",
+                        "name": "gmail",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "留言內容",
+                        "name": "userComment",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "code\",\"message\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/favorite/addFavoriteMountainRoad": {
             "post": {
                 "security": [
