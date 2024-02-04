@@ -36,8 +36,8 @@ type PostWithLikes struct {
 func GetPostList(userID uint, postType string) ([]*PostWithLikes, error) {
 	var posts []*PostWithLikes
 
-	// 获取五天前的日期
-	fiveDaysAgo := time.Now().AddDate(0, 0, -5)
+	// 获取一天前的日期
+	fiveDaysAgo := time.Now().AddDate(0, 0, -1)
 
 	// 构建子查询
 	commentCountSQL := "(SELECT count(*) FROM comments WHERE comments.post_id = post_info.id) as comment_count"
@@ -48,7 +48,8 @@ func GetPostList(userID uint, postType string) ([]*PostWithLikes, error) {
 	query := utils.DB.Table("post_info").
 		Select("post_info.*, user_basic.image_url as author_img, "+commentCountSQL+", "+likeCountSQL+", "+userLikedSQL).
 		Joins("left join user_basic on post_info.author = user_basic.name").
-		Where("post_info.created_at > ?", fiveDaysAgo)
+		Where("post_info.created_at > ?", fiveDaysAgo).
+		Where("post_info.deleted_at IS NULL") // 確保部選取軟刪除的紀錄
 
 	// 根据传入的 postType 添加筛选条件
 	if postType != "" {
