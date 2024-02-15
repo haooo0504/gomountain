@@ -581,7 +581,7 @@ func GetUserHistory(c *gin.Context) {
 		return
 	}
 
-	userLikesCount, errThird := models.GetUserTotalLikes(uint(userId))
+	userLikesCount, errThird := models.GetUserLikesCount(uint(userId))
 	if errThird != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    -1,
