@@ -117,7 +117,7 @@ func UpdateUser(user UserBasic) (UserBasic, error) {
 func RefreshToken(id uint, name string, oldToken string, token string) (UserBasic, bool) {
 	user := UserBasic{}
 	utils.DB.Where("id = ?", id).First(&user)
-	if user.Name == name && user.Identity == oldToken {
+	if user.Name == name {
 		utils.DB.Model(&user).Where("id = ?", user.ID).Update("identity", token)
 		return user, true
 	} else {

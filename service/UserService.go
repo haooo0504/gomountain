@@ -15,6 +15,7 @@ import (
 	"github.com/asaskevich/govalidator"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 )
 
 type UserInput struct {
@@ -86,7 +87,7 @@ func FindUserByNameAndPwd(c *gin.Context) {
 	claims["admin"] = true
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 
-	t, err := token.SignedString([]byte("your_secret_key"))
+	t, err := token.SignedString([]byte(viper.GetString("tokenSign")))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not sign the token"})
 		return
@@ -180,7 +181,7 @@ func CreateUser(c *gin.Context) {
 	claims["admin"] = true
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 
-	t, err := token.SignedString([]byte("your_secret_key"))
+	t, err := token.SignedString([]byte(viper.GetString("tokenSign")))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not sign the token"})
 		return
@@ -349,7 +350,7 @@ func GoogleSignIn(c *gin.Context) {
 	claims["admin"] = true
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 
-	t, err := token.SignedString([]byte("your_secret_key"))
+	t, err := token.SignedString([]byte(viper.GetString("tokenSign")))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not sign the token"})
 		return
@@ -412,39 +413,71 @@ func RefreshToken(c *gin.Context) {
 	idStr := c.PostForm("id")
 	name := c.PostForm("name")
 	oldToken := c.PostForm("token")
-	id, err := strconv.ParseUint(idStr, 10, 32)
+
+	var mySigningKey = []byte(viper.GetString("tokenSign"))
+	// 解析舊token
+	token, err := jwt.Parse(oldToken, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return mySigningKey, nil
+	})
+
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
 		return
 	}
 
-	// Create the JWT token
-	token := jwt.New(jwt.SigningMethodHS256)
-	claims := token.Claims.(jwt.MapClaims)
-	claims["id"] = id
-	claims["admin"] = true
-	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		// 從token提取用戶信息並進行驗證
+		// tokenID := uint(claims["id"].(float64)) // JWT 中的數字默認類行為 float64
+		tokenName := claims["name"].(string)
 
-	t, err := token.SignedString([]byte("your_secret_key"))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not sign the token"})
-		return
-	}
+		// 將字串ID轉換為uint以進行比較
+		id, err := strconv.ParseUint(idStr, 10, 32)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+			return
+		}
 
-	data, correct := models.RefreshToken(uint(id), name, oldToken, t)
-	if correct {
-		c.JSON(http.StatusOK, gin.H{
-			"code":    0, // 0 成功 -1失敗
-			"message": "更新token成功",
-			"data":    data,
-		})
+		// 檢查token是否屬於該用戶
+		if tokenName == name {
+			// 創建新的token
+			newToken := jwt.New(jwt.SigningMethodHS256)
+			newClaims := newToken.Claims.(jwt.MapClaims)
+			newClaims["id"] = id
+			newClaims["name"] = name
+			newClaims["admin"] = true
+			newClaims["exp"] = time.Now().Add(time.Hour * 24).Unix()
+
+			t, err := newToken.SignedString(mySigningKey)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "could not sign the new token"})
+				return
+			}
+
+			data, correct := models.RefreshToken(uint(id), name, oldToken, t)
+			if correct {
+				c.JSON(http.StatusOK, gin.H{
+					"code":    0, // 0 成功 -1失敗
+					"message": "更新token成功",
+					"data":    data,
+				})
+			} else {
+				c.JSON(http.StatusOK, gin.H{
+					"code":    -1, // 0 成功 -1失敗
+					"message": "更新token失敗",
+				})
+			}
+		} else {
+			// token不屬於該用戶
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "token does not belong to this user"})
+			return
+		}
 	} else {
-		c.JSON(http.StatusOK, gin.H{
-			"code":    -1, // 0 成功 -1失敗
-			"message": "更新tokeng失敗",
-		})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
+		return
 	}
-
 }
 
 // AppleSignIn
@@ -491,7 +524,7 @@ func AppleSignIn(c *gin.Context) {
 		claims["admin"] = true
 		claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 
-		t, err := token.SignedString([]byte("your_secret_key"))
+		t, err := token.SignedString([]byte(viper.GetString("tokenSign")))
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "could not sign the token"})
 			return
