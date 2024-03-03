@@ -10,6 +10,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -93,7 +94,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 
 			// Return the secret key (this should be read from environment variable or config file)
 			// This is just an example and should not be used in production
-			return []byte("your_secret_key"), nil
+			return []byte(viper.GetString("tokenSign")), nil
 		})
 
 		if err != nil {
