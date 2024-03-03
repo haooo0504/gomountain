@@ -47,7 +47,7 @@ func GetPostList(userID uint, postType string) ([]*PostWithLikes, error) {
 	// 构造查询
 	query := utils.DB.Table("post_info").
 		Select("post_info.*, user_basic.image_url as author_img, "+commentCountSQL+", "+likeCountSQL+", "+userLikedSQL).
-		Joins("left join user_basic on post_info.author = user_basic.name").
+		Joins("left join user_basic on post_info.author_id = user_basic.id").
 		Where("post_info.created_at > ?", fiveDaysAgo).
 		Where("post_info.deleted_at IS NULL") // 確保部選取軟刪除的紀錄
 

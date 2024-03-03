@@ -8,7 +8,6 @@ import (
 )
 
 // GetVersion
-// @Security ApiKeyAuth
 // @Summary 獲取版本號
 // @Tags 獲取版本號
 // @Success 200 {string} json{"code","message"}

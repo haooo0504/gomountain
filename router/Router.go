@@ -49,6 +49,7 @@ func Router() *gin.Engine {
 	public.GET("/user/getUserList", service.GetUserList)
 	public.GET("/mountainRoad/getMountainRoad", service.GetMountainRoad)
 	public.POST("/connect/connectToUs", service.ConnectToUsHandler)
+	public.GET("/version/getVersion", service.GetVersion)
 
 	// Private (authenticated) routes
 	private := r.Group("/")
@@ -65,7 +66,6 @@ func Router() *gin.Engine {
 
 	private.POST("/comment/addComment", service.AddCommentHandler)
 	private.GET("/comment/getComment", service.GetComment)
-	private.GET("/version/getVersion", service.GetVersion)
 
 	private.POST("/favorite/addFavoriteMountainRoad", service.AddFavoriteMountainRoad)
 	private.GET("/favorite/getFavoriteMountainRoad", service.GetFavoriteMountainRoad)
