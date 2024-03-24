@@ -415,7 +415,8 @@ func RefreshToken(c *gin.Context) {
 	oldToken := c.PostForm("token")
 
 	var mySigningKey = []byte(viper.GetString("tokenSign"))
-	// 解析舊token
+
+	// 嘗試解析舊token
 	token, err := jwt.Parse(oldToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -423,24 +424,43 @@ func RefreshToken(c *gin.Context) {
 		return mySigningKey, nil
 	})
 
+	var tokenClaims jwt.MapClaims
+	var valid bool
+
+	// 檢查token解析錯誤
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
-		return
+		if ve, ok := err.(*jwt.ValidationError); ok {
+			if ve.Errors&jwt.ValidationErrorExpired != 0 {
+				// Token過期，但仍然嘗試從中提取claims
+				tokenClaims, valid = token.Claims.(jwt.MapClaims)
+				if !valid {
+					c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
+					return
+				}
+			} else {
+				// Token有其他無效原因
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
+				return
+			}
+		} else {
+			// 非jwt.ValidationError錯誤
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
+			return
+		}
+	} else {
+		// 無錯誤且token有效
+		tokenClaims = token.Claims.(jwt.MapClaims)
+		valid = token.Valid
 	}
 
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		// 從token提取用戶信息並進行驗證
-		// tokenID := uint(claims["id"].(float64)) // JWT 中的數字默認類行為 float64
-		tokenName := claims["name"].(string)
-
-		// 將字串ID轉換為uint以進行比較
+	if valid {
+		tokenName := tokenClaims["name"].(string)
 		id, err := strconv.ParseUint(idStr, 10, 32)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
 			return
 		}
 
-		// 檢查token是否屬於該用戶
 		if tokenName == name {
 			// 創建新的token
 			newToken := jwt.New(jwt.SigningMethodHS256)
@@ -448,7 +468,7 @@ func RefreshToken(c *gin.Context) {
 			newClaims["id"] = id
 			newClaims["name"] = name
 			newClaims["admin"] = true
-			newClaims["exp"] = time.Now().Add(time.Minute * 10).Unix()
+			newClaims["exp"] = time.Now().Add(time.Second * 10).Unix()
 
 			t, err := newToken.SignedString(mySigningKey)
 			if err != nil {
@@ -470,7 +490,6 @@ func RefreshToken(c *gin.Context) {
 				})
 			}
 		} else {
-			// token不屬於該用戶
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "token does not belong to this user"})
 			return
 		}
