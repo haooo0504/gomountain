@@ -85,7 +85,7 @@ func FindUserByNameAndPwd(c *gin.Context) {
 	claims := token.Claims.(jwt.MapClaims)
 	claims["name"] = name
 	claims["admin"] = true
-	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
+	claims["exp"] = time.Now().Add(time.Minute * 10).Unix()
 
 	t, err := token.SignedString([]byte(viper.GetString("tokenSign")))
 	if err != nil {
@@ -179,7 +179,7 @@ func CreateUser(c *gin.Context) {
 	claims := token.Claims.(jwt.MapClaims)
 	claims["name"] = user.Name
 	claims["admin"] = true
-	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
+	claims["exp"] = time.Now().Add(time.Minute * 10).Unix()
 
 	t, err := token.SignedString([]byte(viper.GetString("tokenSign")))
 	if err != nil {
@@ -333,6 +333,7 @@ func UpdateUser(c *gin.Context) {
 // @Router /user/googleSignIn [post]
 func GoogleSignIn(c *gin.Context) {
 	idToken := c.PostForm("idToken")
+	name, _ := utils.GetNameFromIdToken(idToken)
 	user := models.UserBasic{}
 	payload, err := utils.ValidateGoogleIdToken(idToken)
 	if err != nil {
@@ -346,9 +347,9 @@ func GoogleSignIn(c *gin.Context) {
 	// Create the JWT token
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
-	claims["name"] = user.Name
+	claims["name"] = name
 	claims["admin"] = true
-	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
+	claims["exp"] = time.Now().Add(time.Minute * 10).Unix()
 
 	t, err := token.SignedString([]byte(viper.GetString("tokenSign")))
 	if err != nil {
@@ -363,7 +364,6 @@ func GoogleSignIn(c *gin.Context) {
 	// Replace these lines with the real values from the ID token
 	email := payload.Claims["email"].(string)
 	sub := payload.Claims["sub"].(string)
-	name, _ := utils.GetNameFromIdToken(idToken)
 	hasUser := models.FindUserByGoogleSignIn(email, sub)
 	if hasUser.Name == "" {
 		// User does not exist yet, create a new one
@@ -448,7 +448,7 @@ func RefreshToken(c *gin.Context) {
 			newClaims["id"] = id
 			newClaims["name"] = name
 			newClaims["admin"] = true
-			newClaims["exp"] = time.Now().Add(time.Hour * 24).Unix()
+			newClaims["exp"] = time.Now().Add(time.Minute * 10).Unix()
 
 			t, err := newToken.SignedString(mySigningKey)
 			if err != nil {
@@ -517,20 +517,7 @@ func AppleSignIn(c *gin.Context) {
 		}
 		userEmail += "AppleId"
 		hasUser := models.FindUserByAppleSignIn(userEmail, sub)
-		// Create the JWT token
-		token := jwt.New(jwt.SigningMethodHS256)
-		claims := token.Claims.(jwt.MapClaims)
-		claims["name"] = user.Name
-		claims["admin"] = true
-		claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 
-		t, err := token.SignedString([]byte(viper.GetString("tokenSign")))
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "could not sign the token"})
-			return
-		}
-
-		user.Identity = t
 		user.IsApple = true
 
 		if hasUser.Name == "" {
@@ -544,6 +531,20 @@ func AppleSignIn(c *gin.Context) {
 			}
 			user.TokenSub = sub
 			// 添加任何其他需要的用户属性
+			// Create the JWT token
+			token := jwt.New(jwt.SigningMethodHS256)
+			claims := token.Claims.(jwt.MapClaims)
+			claims["name"] = userName
+			claims["admin"] = true
+			claims["exp"] = time.Now().Add(time.Minute * 10).Unix()
+
+			t, err := token.SignedString([]byte(viper.GetString("tokenSign")))
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "could not sign the token"})
+				return
+			}
+
+			user.Identity = t
 
 			newUser, err := models.CreateUser(&user)
 			if err != nil {
@@ -561,6 +562,21 @@ func AppleSignIn(c *gin.Context) {
 			})
 		} else {
 			// 用户已经存在，返回存在的用户
+			// Create the JWT token
+			token := jwt.New(jwt.SigningMethodHS256)
+			claims := token.Claims.(jwt.MapClaims)
+			claims["name"] = userName
+			claims["admin"] = true
+			claims["exp"] = time.Now().Add(time.Minute * 10).Unix()
+
+			t, err := token.SignedString([]byte(viper.GetString("tokenSign")))
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "could not sign the token"})
+				return
+			}
+
+			user.Identity = t
+
 			user.ID = hasUser.ID
 			curUser, err := models.UpdateUser(user)
 			if err != nil {
